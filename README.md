@@ -43,7 +43,7 @@ back-end/
 ### 1. Instale as dependências no backend/
 Antes de rodar o script, instale as dependências necessárias:
 ```sh
-npm install express http cors multer fs path tesseract.js pdf-poppler socket.io
+npm install axios dotenv express@5.1.0 swagger-ui-express yamljs jest supertest --save-dev jest supertest
 ```
 
 ### 2. Você pode executar o comando diretamente dentro da pasta back-end/
