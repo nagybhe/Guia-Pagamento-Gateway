@@ -1,0 +1,229 @@
+openapi: 3.0.3
+info:
+  title: GUIA DE PAGAMENTO GATEWAY
+  version: 1.0.0
+  description: |
+    INTERMEDIÁRIO PARA EMISSÃO E CONSULTA
+    - /receitas
+    - /dare-unitario/emitir
+    - /dare-lote/emitir
+
+servers:
+  - url: ""
+    description: Ambiente local de desenvolvimento
+
+tags:
+  - name: Receitas
+    description: Endpoints para consulta das receitas disponíveis para emissão de DARE
+  - name: DARE Unitário
+    description: Emissão de DARE para uma única receita
+  - name: DARE Lote
+    description: Emissão em lote de múltiplos DAREs
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+
+  schemas:
+
+    Receita:
+      type: object
+      properties:
+        codigo:
+          type: string
+          example: "081-4"
+          description: Código da receita
+        descricao:
+          type: string
+          example: "ICMS - Parcelamento de débito fiscal não inscrito"
+      required:
+        - codigo
+        - descricao
+
+    DareUnitarioRequest:
+      type: object
+      properties:
+        codigoReceita:
+          type: string
+          description: Código da receita para emissão do DARE
+          example: "081-4"
+        valor:
+          type: number
+          format: float
+          description: Valor do DARE a ser emitido
+          example: 1234.56
+        mes:
+          type: integer
+          description: Mês de referência da receita (1-12)
+          example: 8
+        ano:
+          type: integer
+          description: Ano de referência da receita
+          example: 2025
+        linha06:
+          type: string
+          description: Campo adicional mapeado na Linha 06 do DARE (quando aplicável)
+          example: "123456789"
+        linha08:
+          type: string
+          description: Campo adicional mapeado na Linha 08 do DARE (quando aplicável)
+          example: "987654321"
+      required:
+        - codigoReceita
+        - valor
+        - mes
+        - ano
+
+    DareUnitarioResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identificador único do DARE emitido
+          example: "abc123xyz"
+        codigoReceita:
+          type: string
+          example: "081-4"
+        valor:
+          type: number
+          format: float
+          example: 1234.56
+        dataEmissao:
+          type: string
+          format: date-time
+          example: "2025-08-11T15:30:00Z"
+        urlPdf:
+          type: string
+          format: uri
+          description: URL para download do PDF do DARE emitido
+
+    DareLoteRequestItem:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/DareUnitarioRequest'
+      properties:
+        gerarPDF:
+          type: boolean
+          description: Indica se deve gerar PDF para este DARE no lote (define para todo o lote)
+          example: true
+
+    DareLoteRequest:
+      type: array
+      items:
+        $ref: '#/components/schemas/DareLoteRequestItem'
+
+    DareLoteResponseItem:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/DareUnitarioResponse'
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+
+  /receitas:
+    get:
+      summary: Lista todas as receitas disponíveis para emissão de DARE
+      tags:
+        - Receitas
+      responses:
+        '200':
+          description: Lista de receitas retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Receita'
+        '401':
+          description: Não autorizado - chave API inválida ou ausente
+        '500':
+          description: Erro interno do servidor
+
+  /dare-unitario/emitir:
+    post:
+      summary: Emite um DARE unitário para uma receita específica
+      tags:
+        - DARE Unitário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DareUnitarioRequest'
+      responses:
+        '200':
+          description: DARE unitário emitido com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DareUnitarioResponse'
+        '400':
+          description: Requisição inválida - dados incorretos ou incompletos
+        '401':
+          description: Não autorizado - chave API inválida ou ausente
+        '500':
+          description: Erro interno do servidor
+
+    get:
+      summary: Lista os DAREs unitários emitidos armazenados localmente
+      tags:
+        - DARE Unitário
+      responses:
+        '200':
+          description: Lista de DAREs unitários emitidos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DareUnitarioResponse'
+        '500':
+          description: Erro interno do servidor
+
+  /dare-lote/emitir:
+    post:
+      summary: Emite múltiplos DAREs em lote
+      tags:
+        - DARE Lote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DareLoteRequest'
+      responses:
+        '200':
+          description: DAREs em lote emitidos com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DareLoteResponseItem'
+        '400':
+          description: Requisição inválida - dados incorretos ou incompletos
+        '401':
+          description: Não autorizado - chave API inválida ou ausente
+        '500':
+          description: Erro interno do servidor
+
+    get:
+      summary: Lista os DAREs emitidos em lote armazenados localmente
+      tags:
+        - DARE Lote
+      responses:
+        '200':
+          description: Lista de DAREs emitidos em lote
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DareLoteResponseItem'
+        '500':
+          description: Erro interno do servidor

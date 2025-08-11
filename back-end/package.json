@@ -1,0 +1,23 @@
+{
+  "name": "guia-de-sao-paulo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.11.0",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
+  },
+  "description": "",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.1.4"
+  }
+}

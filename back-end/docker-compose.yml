@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  guia-pagamento:
+    build:
+      context: ./back-end
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # Se quiser passar variáveis do .env local, descomente a linha abaixo
+      # - $(cat ./back-end/.env | xargs)
+    volumes:
+      - ./back-end:/app
+    restart: unless-stopped
