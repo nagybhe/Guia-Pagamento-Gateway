@@ -1,0 +1,12 @@
+# Ambiente em uso
+# API_ENV=homologacao
+# API_ENV=producao
+
+# URL base para o ambiente de homologação
+# API_BASE_HOMOLOG= # Adiconar a URL base para o ambiente de homologação
+
+# URL base para o ambiente de produção
+# API_BASE_PRODUCAO= # Adiconar a URL base para o ambiente de produção
+
+# Sua chave (API Key)
+# API_KEY= # Adiconar a Sua chave (API Key)
